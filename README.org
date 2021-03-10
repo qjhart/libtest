@@ -1,0 +1,24 @@
+* Library Website
+
+Administration of the [[https://www.ucdsitefarm.acsitefactory.com/][SiteFarm SiteFactory]]
+
+** Instructions
+
+
+This is an abbreviated set of instructions. For full information on creating a
+subtheme, please visit the [[https://sitefarm.ucdavis.edu/training/builders/setting-local-development][SiteFarm Local Installation training page]]
+
+[[[[https://sitefarm.ucdavis.edu/training/builders/setting-local-development]]][SiteFarm
+Local Installation training page]]
+
+** Run your SiteFarm Site Locally
+
+This installation uses [[https://docksal.io/][Docksal]] for the development environment setup, with
+Apache, PHP, and MySQL (Maybe postgresql later?).
+
+1. [[https://docksal.io/installation][Install Docksal]]
+2. Navigate to the root of the unpacked folder that you downloaded from Site
+   Factory. Be sure you're in the root of that directory. If you run ~ls -al~
+   you should see files with names: .docksal, acquia-pipelines.yml,
+   composer.lock, etc.
+3. Run one command: `fin themer/init`

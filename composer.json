@@ -1,0 +1,131 @@
+{
+  "name": "ucdavis/sitefarm-acquia",
+  "description": "Drupal 8 SiteFarm distribution for Acquia hosting.",
+  "type": "project",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Regents of the University of California",
+      "email": "copyright@ucdavis.edu",
+      "role": "Copyright Owner"
+    },
+    {
+      "name": "Shawn DeArmond",
+      "email": "sgdearmond@ucdavis.edu",
+      "role": "Developer"
+    },
+    {
+      "name": "Mark Miller",
+      "email": "mrkmiller@ucdavis.edu",
+      "role": "Developer"
+    }
+  ],
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require-dev": {
+    "drupal/core-dev": "~8.9.0",
+    "drupal/drupal-extension": "^4.1"
+  },
+  "require": {
+    "composer/installers": "^1.2",
+    "cweagans/composer-patches": "^1.5",
+    "drupal/acquia_connector": "^1.0",
+    "drupal/acsf": "^2.0",
+    "drupal/console": "^1.0",
+    "drupal/core-composer-scaffold": "~8.9.0",
+    "drupal/core-recommended": "~8.9.0",
+    "drupal/inline_entity_form": "^1.0",
+    "drupal/memcache": "2.1",
+    "drupal/samlauth": "^3.0",
+    "drush/drush": "^9.0",
+    "ucdavis/sitefarm": "dev-8.x-9.x",
+    "ucdavis/sitefarm_acquia_purge": "dev-8.x-2.x"
+  },
+  "repositories": {
+    "drupal": {
+      "type": "composer",
+      "url": "https://packages.drupal.org/8"
+    },
+    "assets": {
+      "type": "composer",
+      "url": "https://asset-packagist.org"
+    },
+    "ucdavis/sitefarm": {
+      "type": "vcs",
+      "url": "git@bitbucket.org:ietwebdev/sitefarm.git"
+    },
+    "ucdavis/aggiefeed": {
+      "type": "vcs",
+      "url": "git@bitbucket.org:ietwebdev/aggiefeed-drupal-module.git"
+    },
+    "ucdavis/sitefarm_acquia_purge": {
+      "type": "vcs",
+      "url": "git@bitbucket.org:ietwebdev/sitefarm_acquia_purge.git"
+    }
+  },
+  "scripts": {
+    "post-install-cmd": [
+      "Sitefarm\\Composer\\Assets::rename"
+    ],
+    "post-update-cmd": [
+      "Sitefarm\\Composer\\Assets::rename"
+    ]
+  },
+  "config": {
+    "sort-packages": true,
+    "preferred-install": {
+      "drupal/*": "dist"
+    }
+  },
+  "conflict": {
+    "drupal/drupal": "*"
+  },
+  "extra": {
+    "drupal-scaffold": {
+      "locations": {
+        "web-root": "docroot/"
+      },
+      "file-mapping": {
+        "[web-root]/robots.txt": false
+      }
+    },
+    "installer-types": [
+      "bower-asset",
+      "npm-asset"
+    ],
+    "installer-paths": {
+      "docroot/core": [
+        "type:drupal-core"
+      ],
+      "docroot/modules/contrib/{$name}": [
+        "type:drupal-module"
+      ],
+      "docroot/modules/custom/{$name}": [
+        "type:drupal-custom-module"
+      ],
+      "docroot/profiles/{$name}": [
+        "type:drupal-profile"
+      ],
+      "docroot/libraries/{$name}": [
+        "type:drupal-library",
+        "type:bower-asset",
+        "type:npm-asset"
+      ],
+      "docroot/themes/contrib/{$name}": [
+        "type:drupal-theme"
+      ],
+      "docroot/themes/custom/{$name}": [
+        "type:drupal-custom-theme"
+      ],
+      "drush/contrib/{$name}": [
+        "type:drupal-drush"
+      ]
+    },
+    "enable-patching": true
+  },
+  "autoload": {
+    "psr-4": {
+      "Sitefarm\\": "src"
+    }
+  }
+}

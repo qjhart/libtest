@@ -1,0 +1,75 @@
+image: proboci/ubuntu:18.04-php7.3
+assets:
+  - probossh.tar.gz
+  - bitbucket_auth.sh
+phpIniOptions:
+  upload_max_filesize: 64M
+  post_max_size: 64M
+  memory_limit: 512M
+steps:
+  - name: Import SSH Keys
+    plugin: Script
+    script:
+      - mkdir $HOME/.ssh
+      - tar -C $HOME/.ssh -zxvf $ASSET_DIR/probossh.tar.gz
+      - chmod 600 $HOME/.ssh/id_rsa*
+      - ssh-keyscan -H bitbucket.org >> $HOME/.ssh/known_hosts
+      - ls -al $HOME/.ssh
+  - name: Build Drupal
+    plugin: Script
+    script:
+      - apt-get update > /dev/null 2>&1
+      - apt-get install jq xvfb -y > /dev/null 2>&1
+      - . $ASSET_DIR/bitbucket_auth.sh >/dev/null 2>&1
+      - PULL_REQUEST_ID=$(basename "https://bitbucket.org/ietwebdev/sitefarm-acquia/pull-requests/${PULL_REQUEST_LINK}")
+      - API_DATA=$(curl -s --user $BITBUCKET_USER:$BITBUCKET_PASS https://api.bitbucket.org/2.0/repositories/ietwebdev/sitefarm-acquia/pullrequests/${PULL_REQUEST_ID})
+      - DESTINATION_BRANCH=$(jq -r  '.destination.branch.name' <<< "${API_DATA}")
+      - composer self-update
+      - echo $PATH
+      - cd /src
+      - if [ $(git ls-remote --heads git@bitbucket.org:ietwebdev/sitefarm.git $BRANCH_NAME | wc -l) = 1 ]; then BRANCH_PROFILE="$BRANCH_NAME"; elif [ $(git ls-remote --heads git@bitbucket.org:ietwebdev/sitefarm.git $DESTINATION_BRANCH | wc -l) = 1 ]; then BRANCH_PROFILE="$DESTINATION_BRANCH"; else BRANCH_PROFILE=dev; fi
+      - composer require "ucdavis/sitefarm:dev-$BRANCH_PROFILE" --ansi
+  - name: Run PhpUnit
+    plugin: Script
+    script:
+      - cd $SRC_DIR/docroot/profiles/sitefarm
+      - SYMFONY_DEPRECATIONS_HELPER=disabled $SRC_DIR/vendor/bin/phpunit --colors="always"
+  - name: Drupal site setup
+    plugin: Drupal
+    drupalVersion: 8
+    subDirectory: docroot
+    runInstall: true
+    profileName: sitefarm
+    installArgs: '--site-name="Testing Acquia SiteFarm on Probo" --account-pass=probo --account-mail=wdtest@ucdavis.edu -y'
+    settingsAppend: '$settings["file_private_path"] = "/var/www/html/sites/default/private-files"; $settings["config_sync_directory"] = "sites/default/files/config_XFJgWG0OOBwFg8asfsKWO8sMf6eYyOq5dbrv14FqkavRVEY6j61JoCbiJ9T_rqphSfdKjkD2Kw/sync";'
+    phpIniOptions:
+      upload_max_filesize: 256M
+      post_max_size: 256M
+      memory_limit: 512M
+  - name: Install default content
+    plugin: Script
+    script:
+      - drush version
+      - drush scr "$SRC_DIR/factory-hooks/post-install/default_content.php"
+      - drush cr
+  - name: Fix files directory permissions
+    plugin: Script
+    script:
+      - chown -R www-data:www-data /var/www/html/sites/default/private-files
+      - chown -R www-data:www-data /var/www/html/sites/default/files
+  - name: Run Behat NoJS
+    plugin: Script
+    script:
+      - cp $SRC_DIR/behat.probo.yml /var/www/html/profiles/sitefarm/behat.yml
+      - cp -r $SRC_DIR/tests/features/acquia /var/www/html/profiles/sitefarm/tests/features/.
+      - cd /var/www/html/profiles/sitefarm
+      - $SRC_DIR/vendor/bin/behat --profile probo --tags "~@javascript" --colors --format progress
+  - name: Run Behat JS
+    plugin: Script
+    script:
+      - wget http://chromedriver.storage.googleapis.com/88.0.4324.96/chromedriver_linux64.zip > /dev/null 2>&1
+      - sudo unzip chromedriver_linux64.zip -d /usr/bin
+      - wget http://selenium-release.storage.googleapis.com/2.53/selenium-server-standalone-2.53.1.jar > /dev/null 2>&1
+      - xvfb-run java -jar selenium-server-standalone-2.53.1.jar -Dwebdriver.chrome.driver="/usr/bin/chromedriver" > /dev/null 2>&1 & sleep 5
+      - cd /var/www/html/profiles/sitefarm
+      - $SRC_DIR/vendor/bin/behat --profile probo --tags "@javascript" --colors --format progress
