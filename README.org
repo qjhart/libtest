@@ -1,33 +1,54 @@
 * Library Website
 
-Administration of the [[https://www.ucdsitefarm.acsitefactory.com/][SiteFarm SiteFactory]]
+Administration of the [[https://www.ucdsitefarm.acsitefactory.com/][SiteFarm SiteFactory]].
 
-** Instructions
+** Installation
 
+These installation instructions are different than those on the website, as I've
+cloned the dev environment.  Under normal operations, I think you're only
+expected to clone the theme, so that's added as a submodule to be consistent
+with that setup as well. (I'm not completely sure about that though, since the
+supplied bundle includes git repo info as well.)
+
+You need to [[https://docksal.io/installation][Install Docksal]], to use this tooling.  Docksal is a suite of tools
+that allow you to run drupal (also wordpress, node) in a containerized
+envirionment, and also manages the network setup to give you a nice experience
+with DNS etc.  Unfortunately for our team we have a name collision with `fin`.
+I've renamed our fin tool `ucd-fin` for these tests.
+
+
+```bash
+git clone --recurse-submodules https://github.com/qjhart/libtest.git
+cd ~/libtest
+# Next untar the bundle that came from Sitefarm.  There are files here,
+# eg. /vender that are explicily ignored in Sitefarms' setup.
+# The files include the database.
+tar -xvf libtest_*.tar.gz --exclude=sitefarm-library-theme --exclude=.gitmodules --exclude=.gitignore
+fin themer/init
+```
+
+I'm pretty sure trying to switch to postgres would be
+out of scope for the custom theming.
+
+*** SiteFarm  Instructions
 
 This is an abbreviated set of instructions. For full information on creating a
 subtheme, please visit the [[https://sitefarm.ucdavis.edu/training/builders/setting-local-development][SiteFarm Local Installation training page]]
 
-[[[[https://sitefarm.ucdavis.edu/training/builders/setting-local-development]]][SiteFarm
-Local Installation training page]]
-
-** Run your SiteFarm Site Locally
-
-This installation uses [[https://docksal.io/][Docksal]] for the development environment setup, with
-Apache, PHP, and MySQL (Maybe postgresql later?).
-
 1. [[https://docksal.io/installation][Install Docksal]]
+
 2. Navigate to the root of the unpacked folder that you downloaded from Site
    Factory. Be sure you're in the root of that directory. If you run ~ls -al~
    you should see files with names: .docksal, acquia-pipelines.yml,
    composer.lock, etc.
 3. Run one command: `fin themer/init`
 
+
+
 ** Operation
 
 Fin maintains it's own docker-compose system, and that's how the website is
 managed.  You can access that the  overall system with ~fin system status~
-
 
 *** Local Domain Name
 One installed, your site is available at [[http://libtest.local/][libtest.local]].  The ~fin init~ script
