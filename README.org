@@ -16,8 +16,7 @@ envirionment, and also manages the network setup to give you a nice experience
 with DNS etc.  Unfortunately for our team we have a name collision with `fin`.
 I've renamed our fin tool `ucd-fin` for these tests.
 
-
-```bash
+#+BEGIN_SRC bash
 git clone --recurse-submodules https://github.com/qjhart/libtest.git
 cd ~/libtest
 # Next untar the bundle that came from Sitefarm.  There are files here,
@@ -25,7 +24,7 @@ cd ~/libtest
 # The files include the database.
 tar -xvf libtest_*.tar.gz --exclude=sitefarm-library-theme --exclude=.gitmodules --exclude=.gitignore
 fin themer/init
-```
+#+END_SRC
 
 I'm pretty sure trying to switch to postgres would be
 out of scope for the custom theming.
