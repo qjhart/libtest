@@ -22,3 +22,108 @@ Apache, PHP, and MySQL (Maybe postgresql later?).
    you should see files with names: .docksal, acquia-pipelines.yml,
    composer.lock, etc.
 3. Run one command: `fin themer/init`
+
+** Operation
+
+Fin maintains it's own docker-compose system, and that's how the website is
+managed.  You can access that the  overall system with ~fin system status~
+
+
+*** Local Domain Name
+One installed, your site is available at [[http://libtest.local/][libtest.local]].  The ~fin init~ script
+actually updates your ~/etc/hosts~ file with this path.  The local 192. IP range
+is also used by fin. I'm not sure if that's taken from the system standard
+docker installation.  Lot's of the ~fin system~ commands affect the DNS settings.
+
+*** TODO SSH-Agent
+Docksal uses ssh to harden some of it's setup, but I don't know what.
+
+*** TODO Uploading database changes
+
+
+
+* Themes
+
+** Installing Stater KIT themes
+
+Following the instructions, I'm installing the iet themes, in the ~theme-basic~
+branch.  However their instructions are a bit off.  I beleive the better
+location for the themes are in ~docroot/themes/~.  Note that IET has named their
+subtheme the same for both, so you can only install the basic-redesign or the
+advanced-redesign, but not both
+
+#+BEGIN_SRC bash
+cd docroot/themes/
+for i in advanced-redesign; do
+  echo $i
+  tar=$i.tar.gz
+  get=https://bitbucket.org/ietwebdev/sitefarm-theme-one-subtheme-starterkits/get
+  wget ${get}/${tar}
+  tar -xzf ${tar}
+  mv ietwebdev-sitefarm-theme-one-subtheme-* $i
+  rm $tar
+done
+#+END_SRC
+
+New themes are available immediately.  You can enable the via the admin page, or
+with the drush command theme:enable
+
+#+BEGIN_SRC bash
+fin exec drush pm-list --type=theme
+#+END_SRC
+
+#+RESULTS:
+| ---------- | ----------------------------- | ---------- | ---------      |         |
+| Package    | Name                          | Status     | Version        |         |
+| ---------- | ----------------------------- | ---------- | ---------      |         |
+| Core       | Bartik                        | (bartik)   | Disabled       |  8.9.13 |
+| Core       | Claro                         | (claro)    | Disabled       |  8.9.13 |
+| Core       | Classy                        | (classy)   | Enabled        |  8.9.13 |
+| Core       | Seven                         | (seven)    | Enabled        |  8.9.13 |
+| Core       | Stable                        | (stable)   | Enabled        |  8.9.13 |
+| Core       | Stark                         | (stark)    | Disabled       |  8.9.13 |
+| SiteFarm   | SiteFarm                      | One        | (sitefarm_one) | Enabled |
+| Custom     | wizard                        | (wizard)   | Disabled       |         |
+| ---------- | ----------------------------- | ---------- | ---------      |         |
+
+
+** Creating theme with the theme wizard
+
+The other method of creating a theme uses fin commands, I'm going to try this in
+the ~theme-wizard~ branch.
+
+For whatever reason trying to add the --theme and --machine parameters kill this
+generate theme command
+
+#+BEGIN_SRC bash
+fin drupal sitefarm:generate:subtheme  \
+--theme-path=/themes \
+--description='Library sitefarm theme.' \
+--advanced=yes \
+--ckeditor=yes \
+--realtime-editing=yes \
+--local-domain=libtest.local \
+--regions=no --yes
+#+END_SRC
+
+The output of this includes this info:
+
+#+BEGIN_EXAMPLE
+
+You will need to compile the Sass and Js using Node.js by running "npm install" from within the new theme
+ directory. Please see the README.md file for directions on how to do this.
+Generated or updated files
+
+ Generation path: /var/www/docroot
+ 1 - /themes/library/library/library.info.yml
+ 2 - /themes/library/library/config/install/library.settings.yml
+ 3 - /themes/library/library/config/schema/library.schema.yml
+ 4 - /themes/library/library/library.libraries.yml
+ 5 - /themes/library/library/js/scripts.js
+ 6 - /themes/library/library/library.theme
+ 7 - /themes/library/library/gulp-config.local.yml
+
+#+END_EXAMPLE
+
+I'm actually not sure yet how fin maintains the npm installations of their
+themes.  This probably need not be done by the dev machine?

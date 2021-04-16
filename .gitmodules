@@ -1,0 +1,3 @@
+[submodule "docroot/themes/sitefarm-library-theme"]
+	path = docroot/themes/sitefarm-library-theme
+	url = https://github.com/qjhart/sitefarm-library-theme.git
